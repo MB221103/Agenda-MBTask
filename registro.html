@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro</title>
+  <style>
+    /* Tu CSS aquí */
+    body {
+      background-image: url('img/calendario.jpg');
+      background-size: cover;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.8);
+      padding: 16px;
+      border-radius: 8px;
+      text-align: center;
+      width: 300px;
+    }
+
+    .title {
+      font-size: 40px;
+      color: black;
+    }
+
+    .divider {
+      height: 20px;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    .button {
+      width: 100%;
+      height: 45px;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      margin-bottom: 16px;
+    }
+
+    .button-blue {
+      background-color: blue;
+    }
+
+    .button-red {
+      background-color: red;
+    }
+
+    .button img {
+      vertical-align: middle;
+      margin-right: 8px;
+      height: 30px;
+      width: 30px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="title">REGISTRARSE</div>
+    <div class="divider"></div>
+    <input class="input-field" id="nombre" type="text" placeholder="Nombre">
+    <input class="input-field" id="apellido" type="text" placeholder="Apellido">
+    <input class="input-field" id="correo" type="email" placeholder="Correo">
+    <input class="input-field" id="contraseña" type="password" placeholder="Contraseña">
+    <input class="input-field" id="universidad" type="text" placeholder="Universidad">
+    <input class="input-field" id="area" type="text" placeholder="Área">
+    <button class="button button-blue" onclick="guardarRegistro(event)">
+      <img src="img/ingresar.png" alt="Ingresar Icon">Registrarse
+    </button>
+    <div class="divider"></div>
+    <p>¿Ya tiene cuenta?</p>
+    <button class="button button-red" onclick="window.location.href='index.html'">
+      <img src="img/ingresar.png" alt="Ingresar Icon">Inicia Sesión
+    </button>
+  </div>
+
+  <!-- Agrega el SDK de Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    // Tu configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyAvWuRevoAen_dvQbwnTCZQxyhMNgsOBXw",
+      authDomain: "taskday-88288.firebaseapp.com",
+      projectId: "taskday-88288",
+      storageBucket: "taskday-88288.appspot.com",
+      messagingSenderId: "540797692406",
+      appId: "1:540797692406:web:b48a9b57f1e9d1cf227fd7",
+      measurementId: "G-1YWD3YG3LP"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    async function obtenerSiguienteID() {
+      const contadorRef = db.collection("contadores").doc("usuarios");
+      const contadorDoc = await contadorRef.get();
+
+      if (contadorDoc.exists) {
+        const nuevoID = contadorDoc.data().contador + 1;
+        await contadorRef.set({ contador: nuevoID });
+        return nuevoID;
+      } else {
+        // Si el documento no existe, inicializa el contador
+        await contadorRef.set({ contador: 1 });
+        return 1;
+      }
+    }
+    // Recopila los valores del formulario
+    async function guardarRegistro(event) {
+      event.preventDefault(); // Evitar el envío del formulario por defecto
+      const nombre = document.getElementById('nombre').value;
+      const apellido = document.getElementById('apellido').value;
+      const correo = document.getElementById('correo').value;
+      const contraseña = document.getElementById('contraseña').value;
+      const universidad = document.getElementById('universidad').value;
+      const area = document.getElementById('area').value;
+
+      try {
+        const nuevoID = await obtenerSiguienteID();
+
+        // Guardar los datos en Firestore con el nuevo ID
+        await db.collection("usuarios").doc(nuevoID.toString()).set({
+          id: nuevoID,
+          nombre: nombre,
+          apellido: apellido,
+          correo: correo,
+          universidad: universidad,
+          area: area,
+          password: contraseña
+        });
+        showNotification('Registro completo');
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 2000);
+
+      } catch (error) {
+        console.error("Error al guardar el registro: ", error);
+        alert("Error al guardar el registro: " + error.message);
+      }
+    }
+
+
+    // Genera un ID único para el usuario basado en su correo electrónico
+
+
+
+    // Función para generar un ID único para el usuario basado en su correo electrónic
+
+
+    function showNotification(message) {
+      // Crea un elemento de notificación
+      const notification = document.createElement('div');
+      notification.textContent = message;
+      notification.style.position = 'fixed';
+      notification.style.bottom = '20px';
+      notification.style.left = '50%';
+      notification.style.transform = 'translateX(-50%)';
+      notification.style.backgroundColor = 'rgba(0,0,0,0.7)';
+      notification.style.color = 'white';
+      notification.style.padding = '10px';
+      notification.style.borderRadius = '5px';
+      document.body.appendChild(notification);
+
+      // Elimina la notificación después de 3 segundos
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    }
+  </script>
+</body>
+
+</html>

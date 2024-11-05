@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Materias</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f3f3f3;
+    }
+
+    header {
+      background-color: #64dd17;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      position: relative;
+    }
+
+    .menu-btn {
+      font-size: 30px;
+      cursor: pointer;
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      color: white;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .subject-card {
+      background-color: #ff7043;
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    .subject-name {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .subject-actions button {
+      padding: 5px 10px;
+      margin-right: 5px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      background-color: #64dd17;
+      color: white;
+      transition: background-color 0.3s ease;
+    }
+
+    .subject-actions button:hover {
+      background-color: #1b5e20;
+    }
+
+    .menu-container {
+      width: 250px;
+      background: #06be2e;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      transition: left 0.3s ease;
+      position: relative;
+    }
+
+    .sidebar {
+      padding: 20px;
+      color: white;
+    }
+
+    .sidebar img {
+      border-radius: 50%;
+      width: 80px;
+      height: 80px;
+      margin-bottom: 10px;
+    }
+
+    .sidebar h3,
+    .sidebar p {
+      margin: 5px 0;
+    }
+
+
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      padding: 10px 0;
+      display: block;
+      transition: background 0.3s;
+    }
+
+    .sidebar a:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .popup-form {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      z-index: 1001;
+    }
+
+    .popup-form input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      box-sizing: border-box;
+    }
+
+    .popup-form input[type="date"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      box-sizing: border-box;
+    }
+
+    .popup-form button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 3px;
+      background-color: #64dd17;
+      color: white;
+      cursor: pointer;
+    }
+
+    .popup-form button.cancel-button {
+      background-color: #ff7043;
+    }
+
+    .popup-form button.cancel-button:hover {
+      background-color: #e64a19;
+    }
+
+    .task-item {
+      margin-bottom: 5px;
+      padding: 5px;
+      background-color: #e0e0e0;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .task-item span {
+      flex-grow: 1;
+    }
+
+    .task-item button {
+      background-color: #ff7043;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .task-item button:hover {
+      background-color: #e64a19;
+    }
+
+    .popup-form button.cancel-button {
+      background-color: #ff7043;
+    }
+
+    .popup-form button.cancel-button:hover {
+      background-color: #e64a19;
+    }
+
+    .menu-container#sidebar {
+      left: -250px;
+      position: fixed;
+      height: 100%;
+      z-index: 1;
+      top: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <span class="menu-btn" onclick="toggleMenu()">☰</span>
+    <h1>Lista de Materias</h1>
+  </header>
+  <div class="container">
+    <div class="menu-container" id="sidebar">
+      <div class="sidebar">
+        <span class="menu-btn" onclick="toggleMenu()">☰</span>
+        <div style="padding: 20px; text-align: center;">
+          <img src="img/usuario.png" alt="User">
+          <h3 id="user-name">Nombre del Usuario</h3>
+          <p id="user-email">Correo del Usuario</p>
+        </div>
+        <a href="#" onclick="navigate('calendario')">INICIO</a>
+        <a href="#" onclick="navigate('Tareas')">TAREAS</a>
+        <a href="#" onclick="navigate('notas')">NOTAS</a>
+        <a href="#" onclick="navigate('materias')">MATERIAS</a>
+        <a href="#" onclick="navigate('configuracion')">CONFIGURACIÓN</a>
+        <a href="#" onclick="navigate('sugerir')">QUEJAS Y SUGERENCIAS</a>
+      </div>
+    </div>
+    <div id="subject-list">
+    </div>
+    <button onclick="toggleForm()">Agregar Materia</button>
+    <div class="popup-form" id="subject-form">
+      <h2>Agregar Materia</h2>
+      <input type="text" id="subject-name-popup" placeholder="Nombre de la materia">
+      <button onclick="addSubject()">Agregar Materia</button>
+      <button onclick="cancelForm()" class="cancel-button">Cancelar</button>
+    </div>
+  </div>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAvWuRevoAen_dvQbwnTCZQxyhMNgsOBXw",
+      authDomain: "taskday-88288.firebaseapp.com",
+      projectId: "taskday-88288",
+      storageBucket: "taskday-88288.appspot.com",
+      messagingSenderId: "540797692406",
+      appId: "1:540797692406:web:b48a9b57f1e9d1cf227fd7",
+      measurementId: "G-1YWD3YG3LP"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    const db = firebase.firestore();
+
+    function toggleMenu() {
+      var sidebar = document.getElementById("sidebar");
+      if (sidebar.style.left === "-250px") {
+        sidebar.style.left = "0";
+      } else {
+        sidebar.style.left = "-250px";
+      }
+    }
+
+    function toggleForm() {
+      var form = document.getElementById("subject-form");
+      form.style.display = (form.style.display === "none") ? "block" : "none";
+    }
+
+    function cancelForm() {
+      document.getElementById("subject-form").style.display = "none";
+    }
+
+    function navigate(pageName) {
+      window.location.href = pageName + '.html';
+    }
+
+    function deleteSubject(subjectId) {
+      const user = JSON.parse(localStorage.getItem('user'));
+      db.collection("usuarios").doc(user.uid).collection("materias").doc(subjectId).delete()
+        .then(() => {
+          console.log("Materia eliminada");
+          document.getElementById(subjectId).remove();
+        })
+        .catch((error) => {
+          console.error("Error al eliminar la materia: ", error);
+          alert("Error al eliminar la materia");
+        });
+    }
+
+    function deleteTask(userId, subjectId, taskId) {
+      db.collection("usuarios").doc(userId).collection("materias").doc(subjectId).collection("tareas").doc(taskId).delete()
+        .then(() => {
+          console.log("Tarea eliminada");
+          document.getElementById(taskId).remove();
+        })
+        .catch((error) => {
+          console.error("Error al eliminar la tarea: ", error);
+          alert("Error al eliminar la tarea");
+        });
+    }
+
+    function loadUserInfo() {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user) {
+        document.getElementById('user-name').innerText = user.nombre;
+        document.getElementById('user-email').innerText = user.correo;
+        // Cargar imagen de perfil desde localStorage si existe
+        const profileImage = localStorage.getItem('profileImage');
+        if (profileImage) {
+          document.querySelector('.sidebar img').src = profileImage;
+        }
+
+        loadSubjects(user.uid);
+      } else {
+        alert("No se encontró información del usuario. Por favor, inicie sesión.");
+        window.location.href = 'index.html';
+      }
+    }
+
+    function loadSubjects(userId) {
+      const subjectList = document.getElementById('subject-list');
+      subjectList.innerHTML = '';  // Limpiar el contenedor antes de cargar
+      db.collection("usuarios").doc(userId).collection("materias").get()
+        .then((querySnapshot) => {
+          const subjectList = document.getElementById('subject-list');
+          querySnapshot.forEach((doc) => {
+            const subjectData = doc.data();
+            const subjectCard = document.createElement('div');
+            subjectCard.className = 'subject-card';
+            subjectCard.id = doc.id;
+            subjectCard.innerHTML = `
+              <div class="subject-name">${subjectData.nombre}</div>
+              <div class="subject-actions">
+                <button onclick="deleteSubject('${doc.id}')">Eliminar Materia</button>
+                <button onclick="toggleTaskForm('${doc.id}')">Agregar Tarea</button>
+              </div>
+              <div class="task-list" id="task-list-${doc.id}"></div>
+              <div class="popup-form" id="task-form-${doc.id}">
+                <h2>Agregar Tarea</h2>
+                <input type="text" id="task-name-popup-${doc.id}" placeholder="Nombre de la tarea">
+                <input type="date" id="task-date-popup-${doc.id}" placeholder="Fecha de la tarea">
+                <button onclick="addTask('${userId}', '${doc.id}')">Agregar Tarea</button>
+                <button onclick="toggleTaskForm('${doc.id}')" class="cancel-button">Cancelar</button>
+              </div>
+            `;
+            subjectList.appendChild(subjectCard);
+            loadTasks(userId, doc.id);
+          });
+        })
+        .catch((error) => {
+          console.error("Error al cargar las materias: ", error);
+        });
+    }
+
+    function loadTasks(userId, subjectId) {
+      db.collection("usuarios").doc(userId).collection("materias").doc(subjectId).collection("tareas").get()
+        .then((querySnapshot) => {
+          const taskList = document.getElementById(`task-list-${subjectId}`);
+          taskList.innerHTML = '';
+          querySnapshot.forEach((doc) => {
+            const taskData = doc.data();
+            const taskItem = document.createElement('div');
+            taskItem.className = 'task-item';
+            taskItem.id = doc.id;
+
+            const taskDate = taskData.fecha instanceof firebase.firestore.Timestamp ? taskData.fecha.toDate() : new Date();
+
+            taskItem.innerHTML = `
+              <span>${taskData.nombre}</span>
+              <span>${formatDate(taskDate)}</span>
+              <button onclick="deleteTask('${userId}', '${subjectId}', '${doc.id}')">Eliminar</button>
+            `;
+            taskList.appendChild(taskItem);
+          });
+        })
+        .catch((error) => {
+          console.error("Error al cargar las tareas: ", error);
+        });
+    }
+
+    function addSubject() {
+      const subjectName = document.getElementById("subject-name-popup").value;
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (subjectName && user) {
+        db.collection("usuarios").doc(user.uid).collection("materias").add({
+          nombre: subjectName
+        })
+          .then(() => {
+            console.log("Materia agregada");
+            document.getElementById("subject-name-popup").value = '';
+            toggleForm();
+            loadSubjects(user.uid);
+          })
+          .catch((error) => {
+            console.error("Error al agregar la materia: ", error);
+            alert("Error al agregar la materia");
+          });
+      } else {
+        alert("Por favor, ingrese un nombre de materia");
+      }
+    }
+
+    function addTask(userId, subjectId) {
+      const taskName = document.getElementById(`task-name-popup-${subjectId}`).value;
+      const taskDate = document.getElementById(`task-date-popup-${subjectId}`).value;
+      if (taskName && taskDate) {
+        db.collection("usuarios").doc(userId).collection("materias").doc(subjectId).collection("tareas").add({
+          nombre: taskName,
+          fecha: firebase.firestore.Timestamp.fromDate(new Date(taskDate))
+        })
+          .then(() => {
+            console.log("Tarea agregada");
+            document.getElementById(`task-name-popup-${subjectId}`).value = '';
+            document.getElementById(`task-date-popup-${subjectId}`).value = '';
+            toggleTaskForm(subjectId);
+            loadTasks(userId, subjectId);
+          })
+          .catch((error) => {
+            console.error("Error al agregar la tarea: ", error);
+            alert("Error al agregar la tarea");
+          });
+      } else {
+        alert("Por favor, ingrese un nombre de tarea y una fecha");
+      }
+    }
+
+    function toggleTaskForm(subjectId) {
+      var taskForm = document.getElementById(`task-form-${subjectId}`);
+      taskForm.style.display = (taskForm.style.display === "none") ? "block" : "none";
+    }
+
+    function formatDate(date) {
+      if (!date) return '';
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+
+    document.addEventListener("DOMContentLoaded", loadUserInfo);
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Configuración</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+
+    header {
+      background-color: #1e88e5;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      position: relative;
+
+    }
+
+    .menu-btn {
+      font-size: 30px;
+      cursor: pointer;
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      color: white;
+    }
+
+    .container {
+      display: flex;
+      padding: 20px;
+    }
+
+    .menu-container {
+      width: 250px;
+      background: #06be2e;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      transition: left 0.3s ease;
+      position: relative;
+    }
+
+    .sidebar {
+      padding: 20px;
+      color: white;
+    }
+
+    .sidebar img {
+      border-radius: 50%;
+      width: 80px;
+      height: 80px;
+      margin-bottom: 10px;
+    }
+
+    .sidebar h3,
+    .sidebar p {
+      margin: 5px 0;
+    }
+
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      padding: 10px 0;
+      display: block;
+      transition: background 0.3s;
+    }
+
+    .sidebar a:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin: 10px 0;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    .popup-form {
+      background: white;
+      border-radius: 8px;
+      padding: 30px;
+      /* Aumentar el padding para más espacio interno */
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+      z-index: 10;
+      width: 400px;
+    }
+
+
+
+    .popup-form h2 {
+      margin-top: 0;
+    }
+
+    .popup-form input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .popup-form button {
+      background-color: #007bff;
+      border: none;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+      transition: background 0.3s;
+    }
+
+    .popup-form button:hover {
+      background-color: #0056b3;
+    }
+
+    .menu-container#sidebar {
+      left: -250px;
+      position: fixed;
+      height: 100%;
+      z-index: 1;
+      top: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <span class="menu-btn" onclick="toggleMenu()">☰</span>
+    <h1>Configuración</h1>
+  </header>
+  <div class="container">
+    <div class="menu-container" id="sidebar">
+      <div class="sidebar">
+        <span class="menu-btn" onclick="toggleMenu()">☰</span>
+        <div style="padding: 20px; text-align: center;">
+          <img id="profileImage" src="img/usuario.png" alt="User">
+          <h3 id="user-name">Nombre del Usuario</h3>
+          <p id="user-email">Correo del Usuario</p>
+        </div>
+        <a href="#" onclick="navigate('calendario')">INICIO</a>
+        <a href="#" onclick="navigate('Tareas')">TAREAS</a>
+        <a href="#" onclick="navigate('notas')">NOTAS</a>
+        <a href="#" onclick="navigate('materias')">MATERIAS</a>
+        <a href="#" onclick="navigate('configuracion')">CONFIGURACIÓN</a>
+        <a href="#" onclick="navigate('sugerir')">QUEJAS Y SUGERENCIAS</a>
+      </div>
+    </div>
+    <button onclick="editProfile()">Editar Perfil</button>
+    <div class="popup-form" id="edit-profile-form" style="display:none;">
+      <h2>Editar Perfil</h2>
+      <input type="file" id="imageUpload" accept="image/*" onchange="loadFile(event)">
+      <input type="text" id="user-name-input" placeholder="Nombre">
+      <input type="text" id="user-lastname-input" placeholder="Apellido">
+      <input type="email" id="user-email-input" placeholder="Correo electrónico">
+      <input type="password" id="user-password-input" placeholder="Contraseña">
+      <input type="text" id="user-university-input" placeholder="Universidad">
+      <input type="text" id="user-area-input" placeholder="Área de estudio">
+      <button onclick="saveProfile()">Guardar</button>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-storage-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAvWuRevoAen_dvQbwnTCZQxyhMNgsOBXw",
+      authDomain: "taskday-88288.firebaseapp.com",
+      projectId: "taskday-88288",
+      storageBucket: "taskday-88288.appspot.com",
+      messagingSenderId: "540797692406",
+      appId: "1:540797692406:web:b48a9b57f1e9d1cf227fd7",
+      measurementId: "G-1YWD3YG3LP"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+
+    function editProfile() {
+      var editProfileForm = document.getElementById("edit-profile-form");
+      editProfileForm.style.display = "block";
+
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user) {
+        document.getElementById("user-name-input").value = user.nombre || '';
+        document.getElementById("user-lastname-input").value = user.apellido || '';
+        document.getElementById("user-email-input").value = user.correo || '';
+        document.getElementById("user-university-input").value = user.universidad || '';
+        document.getElementById("user-area-input").value = user.area || '';
+      }
+    }
+
+    function loadFile(event) {
+      const profileImage = document.getElementById('profileImage');
+      const file = event.target.files[0];
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          profileImage.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    async function uploadImage(file) {
+      const storageRef = storage.ref('profile-images/' + file.name);
+      await storageRef.put(file);
+      const downloadURL = await storageRef.getDownloadURL();
+      return downloadURL;
+    }
+
+    async function saveProfile() {
+      const newName = document.getElementById("user-name-input").value;
+      const newLastname = document.getElementById("user-lastname-input").value;
+      const newEmail = document.getElementById("user-email-input").value;
+      const newPassword = document.getElementById("user-password-input").value;
+      const newUniversity = document.getElementById("user-university-input").value;
+      const newArea = document.getElementById("user-area-input").value;
+      const fileInput = document.getElementById('imageUpload');
+
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user) {
+        let updates = {
+          nombre: newName,
+          apellido: newLastname,
+          correo: newEmail,
+          universidad: newUniversity,
+          area: newArea
+        };
+
+        if (newPassword !== '') {
+          updates.password = newPassword;
+        }
+
+        if (fileInput.files.length > 0) {
+          const file = fileInput.files[0];
+          const imageURL = await uploadImage(file);
+          updates.foto = imageURL;
+          document.getElementById('profileImage').src = imageURL;
+          localStorage.setItem('profileImage', imageURL);  // Guarda la URL en localStorage
+        }
+
+        db.collection("usuarios").doc(user.uid).update(updates)
+          .then(() => {
+            console.log("Perfil actualizado");
+            alert("Perfil actualizado correctamente");
+
+            user.nombre = newName;
+            user.apellido = newLastname;
+            user.correo = newEmail;
+            user.universidad = newUniversity;
+            user.area = newArea;
+
+            if (updates.foto) {
+              user.foto = updates.foto;
+            }
+
+            localStorage.setItem('user', JSON.stringify(user));
+            document.getElementById("edit-profile-form").style.display = "none";
+          })
+          .catch((error) => {
+            console.error("Error al actualizar el perfil: ", error);
+            alert("Error al actualizar el perfil");
+          });
+      }
+    }
+
+    function toggleMenu() {
+      var sidebar = document.getElementById("sidebar");
+      if (sidebar.style.left === "-250px") {
+        sidebar.style.left = "0";
+      } else {
+        sidebar.style.left = "-250px";
+      }
+    }
+
+    function navigate(pageName) {
+      window.location.href = pageName + '.html';
+    }
+
+    function loadUserInfo() {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user) {
+        document.getElementById('user-name').innerText = user.nombre;
+        document.getElementById('user-email').innerText = user.correo;
+        if (user.foto) {
+          document.getElementById('profileImage').src = user.foto;
+        }
+        loadTasks(user.uid);
+      } else {
+        alert("No se encontró información del usuario. Por favor, inicie sesión.");
+        window.location.href = 'index.html';
+      }
+    }
+
+    window.onload = () => {
+      loadUserInfo();
+    };
+  </script>
+</body>
+
+</html>

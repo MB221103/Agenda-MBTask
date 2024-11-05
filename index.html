@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('img/fondo.avif') no-repeat center center;
+      background-size: cover;
+      color: white;
+    }
+
+    .container {
+      background: url('img/fondo.avif') no-repeat center center;
+      background-size: cover;
+      border-radius: 8px;
+      width: 350px;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .upper-section {
+      flex: 1;
+      background: url('img/miganen.jpg') no-repeat center center;
+      background-size: cover;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .middle-section {
+      flex: 1;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .middle-section h1 {
+      font-size: 36px;
+      margin-top: -10px;
+      margin-bottom: 20px;
+      color: #cd09e7;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      letter-spacing: 2px;
+      text-shadow:
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000;
+    }
+
+
+    .middle-section p {
+      font-size: 16px;
+      color: #c40c0c;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-weight: bold;
+      margin-top: 0;
+      padding-left: 10px;
+    }
+
+
+    .input-field {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .lower-section {
+      text-align: center;
+    }
+
+    .button {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 10px;
+      border: none;
+      border-radius: 50px;
+      font-size: 20px;
+      cursor: pointer;
+      color: rgb(17, 16, 16);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-weight: bold;
+      background: linear-gradient(90deg, rgba(34, 193, 195, 1) 0%, rgba(253, 187, 45, 1) 100%);
+      transition: background 0.3s ease;
+    }
+
+    .button:hover {
+      background: linear-gradient(90deg, rgba(253, 187, 45, 1) 0%, rgba(34, 193, 195, 1) 100%);
+    }
+
+    .button-blue {
+      background: linear-gradient(90deg, rgba(34, 193, 195, 1) 0%, rgba(45, 253, 187, 1) 100%);
+    }
+
+    .button-blue:hover {
+      background: linear-gradient(90deg, rgba(45, 253, 187, 1) 0%, rgba(34, 193, 195, 1) 100%);
+    }
+
+    .button-red {
+      background: linear-gradient(90deg, rgba(253, 45, 187, 1) 0%, rgba(193, 34, 195, 1) 100%);
+    }
+
+    .button-red:hover {
+      background: linear-gradient(90deg, rgba(193, 34, 195, 1) 0%, rgba(253, 45, 187, 1) 100%);
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAvWuRevoAen_dvQbwnTCZQxyhMNgsOBXw",
+      authDomain: "taskday-88288.firebaseapp.com",
+      projectId: "taskday-88288",
+      storageBucket: "taskday-88288.appspot.com",
+      messagingSenderId: "540797692406",
+      appId: "1:540797692406:web:b48a9b57f1e9d1cf227fd7",
+      measurementId: "G-1YWD3YG3LP"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    function login() {
+      const nombre = document.getElementById('nombre').value;
+      const contraseña = document.getElementById('contraseña').value;
+
+      db.collection("usuarios").where("nombre", "==", nombre).where("password", "==", contraseña)
+        .get()
+        .then((querySnapshot) => {
+          if (!querySnapshot.empty) {
+            querySnapshot.forEach((doc) => {
+              const userData = doc.data();
+              userData.uid = doc.id;
+              localStorage.setItem('user', JSON.stringify(userData));
+            });
+            window.location.href = 'calendario.html';
+          } else {
+            alert("Usuario o contraseña incorrectos.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error al iniciar sesión: ", error);
+          alert("Error al iniciar sesión: " + error.message);
+        });
+    }
+  </script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="upper-section"></div>
+
+    <div class="middle-section">
+      <h1>VJ AGENDA</h1>
+      <p>Bienvenido a tu calendario</p>
+      <input id="nombre" class="input-field" type="text" placeholder="Username">
+      <input id="contraseña" class="input-field" type="password" placeholder="Password">
+    </div>
+
+    <div class="lower-section">
+      <button class="button button-blue" onclick="login()">
+        Iniciar Sesión
+      </button>
+      <button class="button button-red" onclick="window.location.href='registro.html'">
+        Registrarte
+      </button>
+    </div>
+  </div>
+</body>
+
+</html>

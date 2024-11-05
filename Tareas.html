@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Tareas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #157c6b;
+
+    }
+
+    header {
+      background-color: #64dd17;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      position: relative;
+    }
+
+    .menu-btn {
+      font-size: 30px;
+      cursor: pointer;
+      color: white;
+      position: absolute;
+      top: 15px;
+      left: 15px;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .task-card {
+      background-color: #e0f7fa;
+
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .task-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .task-date {
+      color: #333;
+    }
+
+    .task-actions button {
+      padding: 5px 10px;
+      margin-right: 5px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      background-color: #64dd17;
+      color: white;
+      transition: background-color 0.3s ease;
+    }
+
+    .task-actions button:nth-child(2) {
+      background-color: crimson;
+    }
+
+    .task-actions button:nth-child(2):hover {
+      background-color: red;
+    }
+
+    .task-actions button:hover {
+      background-color: #1b5e20;
+    }
+
+    .menu-container {
+      width: 250px;
+      background: #06be2e;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      transition: left 0.3s ease;
+      position: relative;
+    }
+
+    .sidebar {
+      padding: 20px;
+      color: white;
+    }
+
+    .sidebar img {
+      border-radius: 50%;
+      width: 80px;
+      height: 80px;
+      margin-bottom: 10px;
+    }
+
+    .sidebar h3,
+    .sidebar p {
+      margin: 5px 0;
+    }
+
+
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      padding: 10px 0;
+      display: block;
+      transition: background 0.3s;
+    }
+
+    .sidebar a:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .task-inputs input[type="text"],
+    .task-inputs input[type="date"],
+    .task-inputs input[type="file"],
+    .task-inputs button {
+      margin-bottom: 10px;
+    }
+
+    .task-inputs input[type="text"],
+    .task-inputs input[type="date"] {
+      padding: 10px;
+      border-radius: 3px;
+      border: 1px solid #ccc;
+      width: calc(100% - 22px);
+      box-sizing: border-box;
+    }
+
+    .task-inputs input[type="file"] {
+      padding: 5px;
+    }
+
+    .task-inputs button {
+      padding: 10px;
+      background-color: #4a8db4;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .task-inputs button:hover {
+      background-color: #1b5e20;
+    }
+
+    #notification {
+      display: none;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 5px;
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .task-file-label {
+      background-color: cornflowerblue;
+      padding: 1em 2em;
+      border-radius: .5em;
+      cursor: pointer;
+      display: grid;
+      position: relative;
+      margin-bottom: 2em;
+    }
+
+    .task-file-label:hover {
+      background-color: #09f;
+    }
+
+    .task-file-label span {
+      color: #fff;
+      font-size: 2em;
+      font-weight: 1em;
+      text-align: center;
+    }
+
+    .task-file-label input {
+      opacity: 0;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+
+    .menu-container#sidebar {
+      left: -250px;
+      position: fixed;
+      height: 100%;
+      z-index: 1;
+      top: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <span class="menu-btn" onclick="toggleMenu()">☰</span>
+    <h1>Lista de Tareas</h1>
+  </header>
+  <div class="container">
+    <div class="menu-container" id="sidebar">
+      <div class="sidebar">
+        <span class="menu-btn" onclick="toggleMenu()">☰</span>
+        <div style="padding: 20px; text-align: center;">
+          <img src="img/usuario.png" alt="Usuario">
+          <h3 id="user-name">Nombre del Usuario</h3>
+          <p id="user-email">Correo del Usuario</p>
+        </div>
+        <a href="#" onclick="navigate('calendario')">INICIO</a>
+        <a href="#" onclick="navigate('Tareas')">TAREAS</a>
+        <a href="#" onclick="navigate('notas')">NOTAS</a>
+        <a href="#" onclick="navigate('materias')">MATERIAS</a>
+        <a href="#" onclick="navigate('configuracion')">CONFIGURACIÓN</a>
+        <a href="#" onclick="navigate('sugerir')">QUEJAS Y SUGERENCIAS</a>
+      </div>
+    </div>
+    <div id="task-list">
+      <!-- Las tareas se cargarán aquí dinámicamente -->
+    </div>
+    <div class="task-inputs">
+      <h2>Agregar Tarea</h2>
+      <input type="text" id="task-title" placeholder="Título de la tarea">
+      <input type="date" id="task-date">
+      <label for="task-file" class="task-file-label">
+        <span>
+          subir archivo ⬆️
+        </span>
+        <input type="file" id="task-file" placeholder="Adjuntar archivo">
+      </label>
+      <button onclick="addTask()">Agregar Tarea</button>
+    </div>
+    <div id="notification"></div>
+  </div>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-storage-compat.js"></script>
+  <script>
+    // Configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyAvWuRevoAen_dvQbwnTCZQxyhMNgsOBXw",
+      authDomain: "taskday-88288.firebaseapp.com",
+      projectId: "taskday-88288",
+      storageBucket: "taskday-88288.appspot.com",
+      messagingSenderId: "540797692406",
+      appId: "1:540797692406:web:b48a9b57f1e9d1cf227fd7",
+      measurementId: "G-1YWD3YG3LP"
+    };
+
+    // Inicializa Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Obtén una referencia a la base de datos Firestore y Firebase Storage
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+
+    function toggleMenu() {
+      var sidebar = document.getElementById("sidebar");
+      if (sidebar.style.left === "-250px") {
+        sidebar.style.left = "0";
+      } else {
+        sidebar.style.left = "-250px";
+      }
+    }
+
+    function navigate(pageName) {
+      window.location.href = pageName + '.html';
+    }
+
+    function showNotification(message) {
+      const notification = document.getElementById('notification');
+      notification.innerText = message;
+      notification.style.display = 'block';
+      setTimeout(() => {
+        notification.style.display = 'none';
+      }, 3000);
+    }
+
+    function deleteTask(taskId) {
+      const user = JSON.parse(localStorage.getItem('user'));
+      db.collection("usuarios").doc(user.uid).collection("tareas").doc(taskId).delete()
+        .then(() => {
+          console.log("Tarea eliminada");
+          document.getElementById(taskId).remove();
+          showNotification("Tarea eliminada exitosamente");
+        })
+        .catch((error) => {
+          console.error("Error al eliminar la tarea: ", error);
+          showNotification("Error al eliminar la tarea");
+        });
+    }
+
+    function loadUserInfo() {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user) {
+        document.getElementById('user-name').innerText = user.nombre;
+        document.getElementById('user-email').innerText = user.correo;
+        // Cargar imagen de perfil desde localStorage si existe
+        const profileImage = localStorage.getItem('profileImage');
+        if (profileImage) {
+          document.querySelector('.sidebar img').src = profileImage;
+        }
+
+        loadTasks(user.uid);
+      } else {
+        alert("No se encontró información del usuario. Por favor, inicie sesión.");
+        window.location.href = 'index.html';
+      }
+    }
+
+    function loadTasks(userId) {
+      db.collection("usuarios").doc(userId).collection("tareas").get()
+        .then((querySnapshot) => {
+          const taskList = document.getElementById('task-list');
+          querySnapshot.forEach((doc) => {
+            const taskData = doc.data();
+            const taskCard = document.createElement('div');
+            taskCard.className = 'task-card';
+            taskCard.id = doc.id;
+            let fileName = taskData.archivo.split("/").at(-1)
+            fileName = decodeURIComponent(fileName)
+            fileName = fileName.split("?").at(0)
+            fileName = fileName.replace("tareas/", "")
+            taskCard.innerHTML = `
+                <div class="task-title">Tarea: ${taskData.titulo}</div>
+                <div class="task-date">Fecha: ${taskData.fecha}</div>
+                ${taskData.archivo ? `<a href="${taskData.archivo}" target="_blank">${fileName}</a>` : ''}
+                <div class="task-actions">
+                    <button onclick="window.shareTask('${taskData.titulo}', '${taskData.fecha}', '${taskData.archivo || ''}')">Compartir</button>
+                    <button onclick="window.deleteTask('${doc.id}')">Eliminar</button>
+                </div>
+            `;
+            taskList.appendChild(taskCard);
+          });
+        })
+        .catch((error) => {
+          console.error("Error al cargar las tareas: ", error);
+          showNotification("Error al cargar las tareas");
+        });
+    }
+
+
+    async function shareTask(taskTitle, taskDate, fileUrl) {
+      let message = `Tarea: ${taskTitle}\nFecha: ${taskDate}`;
+      if (fileUrl) {
+        message += `\nLink de descarga: ${fileUrl}`;
+      }
+      const whatsappUrl = 'https://wa.me/?text=' + encodeURIComponent(message);
+      window.open(whatsappUrl);
+    }
+
+    function addTask() {
+      const title = document.getElementById('task-title').value;
+      const date = document.getElementById('task-date').value;
+      const fileInput = document.getElementById('task-file');
+      const user = JSON.parse(localStorage.getItem('user'));
+
+      if (!user) {
+        alert("Por favor, inicie sesión para agregar una tarea.");
+        return;
+      }
+
+      let fileUrl = null;
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const storageRef = storage.ref('tareas/' + file.name);
+        storageRef.put(file).then(snapshot => {
+          return snapshot.ref.getDownloadURL();
+        }).then(url => {
+          fileUrl = url;
+          return db.collection("usuarios").doc(user.uid).collection("tareas").add({
+            titulo: title,
+            fecha: date,
+            archivo: fileUrl
+          });
+        }).then(docRef => {
+          console.log("Tarea agregada con ID: ", docRef.id);
+          const taskList = document.getElementById('task-list');
+          const taskCard = document.createElement('div');
+          taskCard.className = 'task-card';
+          taskCard.id = docRef.id;
+
+          const fileName = decodeURIComponent(fileUrl.split("/").at(-1).split("?")[0].replace("tareas%2F", ""));
+
+          taskCard.innerHTML = `
+        <div class="task-title">Tarea: ${title}</div>
+        <div class="task-date">Fecha: ${date}</div>
+        ${fileUrl ? `<a href="${fileUrl}" target="_blank">${fileName}</a>` : ''}
+        <div class="task-actions">
+          <button onclick="window.shareTask('${title}', '${date}', '${fileUrl || ''}')">Compartir</button>
+          <button onclick="deleteTask('${docRef.id}')">Eliminar</button>
+        </div>
+      `;
+          taskList.appendChild(taskCard);
+
+          document.getElementById('task-title').value = '';
+          document.getElementById('task-date').value = '';
+          fileInput.value = '';
+          showNotification("Tarea agregada exitosamente");
+        }).catch((error) => {
+          console.error("Error al agregar la tarea: ", error);
+          showNotification("Error al agregar la tarea");
+        });
+      } else {
+        db.collection("usuarios").doc(user.uid).collection("tareas").add({
+          titulo: title,
+          fecha: date
+        })
+          .then((docRef) => {
+            console.log("Tarea agregada con ID: ", docRef.id);
+            const taskList = document.getElementById('task-list');
+            const taskCard = document.createElement('div');
+            taskCard.className = 'task-card';
+            taskCard.id = docRef.id;
+            taskCard.innerHTML = `
+          <div class="task-title">Tarea: ${title}</div>
+          <div class="task-date">Fecha: ${date}</div>
+          ${fileUrl ? `<a href="${fileUrl}" target="_blank">${fileName}</a>` : ''}
+          <div class="task-actions">
+              <button onclick="window.shareTask('${title}', '${date}', '${fileUrl || ''}')">Compartir</button>
+              <button onclick="window.deleteTask('${docRef.id}')">Eliminar</button>
+          </div>
+      `;
+            taskList.appendChild(taskCard);
+
+            document.getElementById('task-title').value = '';
+            document.getElementById('task-date').value = '';
+            showNotification("Tarea agregada exitosamente");
+          })
+          .catch((error) => {
+            console.error("Error al agregar la tarea: ", error);
+            showNotification("Error al agregar la tarea");
+          });
+      }
+    }
+
+
+    function viewFile(fileUrl) {
+      window.open(fileUrl);
+    }
+
+
+    function downloadFile(fileUrl) {
+      window.location.href = fileUrl;
+    }
+
+    window.onload = () => {
+      loadUserInfo();
+    };
+  </script>
+</body>
+
+</html>
